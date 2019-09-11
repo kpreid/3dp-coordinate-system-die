@@ -2,6 +2,7 @@ cube_size = 20;
 axis_thickness = 2;
 text_thickness = 1.6;
 epsilon = 0.01;
+bevel_size = 1;
 
 preview();
 
@@ -17,6 +18,7 @@ module preview() {
 module neutral() {
     difference() {
         body_without_features();
+        
         x_features();
         y_features();
         z_features();
@@ -24,23 +26,40 @@ module neutral() {
 }
 
 module body_without_features() {
-    cube([1, 1, 1] * cube_size);
+    overall_bounds() {
+        cube([1, 1, 1] * cube_size);
+    }
 }
 
 module x_features() {
-    rotate([90, 0, 0])
-    rotate([0, 90, 0])
-    axis_bar_and_label("X");
+    overall_bounds() {
+        rotate([90, 0, 0])
+        rotate([0, 90, 0])
+        axis_bar_and_label("X");
+    }
 }
 
 module y_features() {
-    rotate([-90, 0, 0])
-    rotate([0, 0, -90])
-    axis_bar_and_label("Y");
+    overall_bounds() {
+        rotate([-90, 0, 0])
+        rotate([0, 0, -90])
+        axis_bar_and_label("Y");
+    }
 }
 
 module z_features() {
-    axis_bar_and_label("Z");
+    overall_bounds() {
+        axis_bar_and_label("Z");
+    }
+}
+
+module overall_bounds() {
+    difference() {
+        children();
+        
+        translate([1, 1, 1] * (cube_size / 2))
+        twelve_bevels();
+    }
 }
 
 module axis_bar_and_label(axis) {
@@ -67,4 +86,23 @@ module one_label(string, topside) {
 module axis_bar() {
     translate([-epsilon, -epsilon, axis_thickness])
     cube([axis_thickness, axis_thickness, cube_size - axis_thickness + epsilon]);
+}
+
+module twelve_bevels() {
+    four_bevels();
+    rotate([90, 0, 0]) four_bevels();
+    rotate([0, 90, 0]) four_bevels();
+}
+
+module four_bevels() {
+    for (angle = [0:90:360]) {
+        rotate([0, 0, angle])
+        one_bevel();
+    }
+}
+
+module one_bevel() {
+    translate([-cube_size / 2 - epsilon, -cube_size / 2 - epsilon, 0])
+    rotate([0, 0, 45])
+    cube([bevel_size, bevel_size, cube_size * 2 + epsilon * 4], center=true);
 }
