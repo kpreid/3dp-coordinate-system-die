@@ -1,10 +1,16 @@
+part = "preview";
+
 cube_size = 20;
 axis_thickness = 2;
 text_thickness = 1.6;
 epsilon = 0.01;
 bevel_size = 1;
 
-preview();
+if (part == "preview") preview();
+else if (part == "n") neutral();
+else if (part == "x") x_features();
+else if (part == "y") y_features();
+else if (part == "z") z_features();
 
 
 module preview() {
@@ -26,13 +32,13 @@ module neutral() {
 }
 
 module body_without_features() {
-    overall_bounds() {
+    overall_bounds(false) {
         cube([1, 1, 1] * cube_size);
     }
 }
 
 module x_features() {
-    overall_bounds() {
+    overall_bounds(true) {
         rotate([90, 0, 0])
         rotate([0, 90, 0])
         axis_bar_and_label("X");
@@ -40,7 +46,7 @@ module x_features() {
 }
 
 module y_features() {
-    overall_bounds() {
+    overall_bounds(true) {
         rotate([-90, 0, 0])
         rotate([0, 0, -90])
         axis_bar_and_label("Y");
@@ -48,15 +54,16 @@ module y_features() {
 }
 
 module z_features() {
-    overall_bounds() {
+    overall_bounds(true) {
         axis_bar_and_label("Z");
     }
 }
 
-module overall_bounds() {
+module overall_bounds(fudge = false) {
     difference() {
         children();
         
+        $bevel_fudge = fudge;
         translate([1, 1, 1] * (cube_size / 2))
         twelve_bevels();
     }
@@ -102,7 +109,8 @@ module four_bevels() {
 }
 
 module one_bevel() {
+    size = bevel_size - ($bevel_fudge ? epsilon : 0);
     translate([-cube_size / 2 - epsilon, -cube_size / 2 - epsilon, 0])
     rotate([0, 0, 45])
-    cube([bevel_size, bevel_size, cube_size * 2 + epsilon * 4], center=true);
+    cube([size, size, cube_size * 2 + epsilon * 4], center=true);
 }
