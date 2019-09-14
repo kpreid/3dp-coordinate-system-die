@@ -1,10 +1,12 @@
 part = "preview";
 
 cube_size = 20;
+left_handed = false;
 axis_thickness = 2;
 text_thickness = 1.6;
-epsilon = 0.01;
 bevel_size = 1;
+
+epsilon = 0.01;
 
 if (part == "preview") preview();
 else if (part == "n") neutral();
@@ -39,16 +41,14 @@ module body_without_features() {
 
 module x_features() {
     overall_bounds(true) {
-        rotate([90, 0, 0])
-        rotate([0, 90, 0])
+        nominal_x_transform()
         axis_bar_and_label("X");
     }
 }
 
 module y_features() {
     overall_bounds(true) {
-        rotate([-90, 0, 0])
-        rotate([0, 0, -90])
+        nominal_y_transform()
         axis_bar_and_label("Y");
     }
 }
@@ -67,6 +67,34 @@ module overall_bounds(fudge = false) {
         translate([1, 1, 1] * (cube_size / 2))
         twelve_bevels();
     }
+}
+
+module nominal_x_transform() {
+    if (left_handed) {
+        y_transform() children();
+    } else {
+        x_transform() children();
+    }
+}
+
+module nominal_y_transform() {
+    if (left_handed) {
+        x_transform() children();
+    } else {
+        y_transform() children();
+    }
+}
+
+module x_transform() {
+    rotate([90, 0, 0])
+    rotate([0, 90, 0])
+    children();
+}
+
+module y_transform() {
+    rotate([-90, 0, 0])
+    rotate([0, 0, -90])
+    children();
 }
 
 module axis_bar_and_label(axis) {
